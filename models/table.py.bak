@@ -1,0 +1,22 @@
+from datetime import datetime
+
+def get_email():
+    if auth.user:
+        return auth.user.email
+    else:
+        return 'None'
+
+db.define_table('project',
+    Field('author', default = get_email()),
+    Field('title', unique=True),
+    Field('code', 'text'),
+    Field('designation'),
+    Field('creation_date', 'datetime', default=datetime.utcnow()),
+    )
+
+db.project.id.readable = False
+db.project.author.writable = False
+#db.project.title.requires = IS_NOT_IN_DB(db, db.project.title)
+db.project.designation.requires = IS_EMAIL()
+db.project.designation.requires = IS_IN_DB(db, db.auth_user.email)
+db.project.creation_date.writable = False

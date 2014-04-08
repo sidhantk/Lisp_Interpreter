@@ -1,0 +1,1 @@
+A web2py application that displays a user-friendly console that acts as LISP interpreter for people that are learning the language. This application has not been deployed, but if packed and installed through web2py, it can run on a browser.

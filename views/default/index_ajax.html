@@ -1,0 +1,158 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+<style type="text/css">
+#additem {
+    vertical-align: top;
+}
+
+p {
+color: #ffffff;
+}
+
+h2 {
+font-style: italic;
+text-align: center;
+}
+
+button {
+width: 80px;
+margin-right: 133px;
+}
+
+.container {}
+
+.left {
+width:500px;
+height:500px;
+float:left;
+text-align:left;
+        resize:none;
+}
+
+.center {
+width:200px;
+float:left;
+text-align:center;
+}
+.right {
+width:200px;
+float:right;
+text-align:right;
+margin-right:100px;
+}
+
+    #outputbox {
+        width: 500px;
+        height: 500px;
+        background-color: #000000;
+        border: 2px solid #bbbbbb;
+        float: right;
+        text-align: left;
+        margin-right: 50px;
+    }
+
+    .blacktext {
+        color:#000000
+    }
+
+    .whiteText {
+        color:#FFFFFF
+    }
+</style>
+
+<script>
+$(document).ready(function()
+{
+    $("#interpret").click(function()
+    {
+        var inputbox = $("#inputbox").val();
+        inputbox = inputbox.replace("+", "!!"); //we need this becuase we can't send '+' through ajax so we use '!!' as a substitute
+        var msg = "msg=" + JSON.stringify(inputbox);
+        $.post('{{=interpret_url}}', msg, function(jdata)
+        {
+            var data = JSON.parse(jdata);
+            var newresult = "";
+            newresult = data["result"];
+            for (var i = 0; i < newresult.length; i++) {
+                var encodeditem = $('<p/>').text(newresult[i]).html();
+                var newdiv = $('<p>');
+                newdiv.html(encodeditem);
+                $("#outputbox").append(newdiv);
+            }
+        });
+        return false; // prevents default action of reloading page from happenign
+    });
+
+    $("#clear").click(function()
+    {
+        $("#inputbox").val("");
+        return false;
+    });
+
+    $("#save").click(function()
+    {
+        if ($("#inputbox").val() != ""){
+            var input = $("#inputbox").val();
+            var title = prompt("Enter a Title for your code.");
+            if (title != null){
+                input = input.replace("+", "!!"); //we need this becuase we can't send '+' through ajax so we use '!!' as a substitute
+                var msg = "msg=" + JSON.stringify(title) + ":::::" + JSON.stringify(input);
+                $.post('{{=save_url}}', msg, function(jdata)
+                {
+                alert("Ok, saved.");
+                });
+            }
+        }
+        // return false prevents page from reloading & buttons from greying.
+        return false;
+    });
+
+    //load was here
+    var loadedText = $("#loaded").text()
+    if (loadedText != "" || loadedText != None)
+    {
+        //parse loadedText for the ~~~ place holders to become \n
+        var tempStr = loadedText.replace(/~~~/g, "\n");
+        var loadedStr = tempStr.substring(1, tempStr.length - 1);//if the first index of the string is a '"' and the last is a '"'
+        $("#inputbox").empty();
+        $("#inputbox").val(loadedStr);
+    }
+});
+</script>
+{{end}}
+
+<h1 style="text-align: center;">
+    LISP Interpreter
+</h1>
+
+<p style="text-align: center;">
+    {{=A('To Home Page', _href=URL('default', 'index'))}}
+</p>
+
+<div id="loaded" class="blacktext" style="visibility: hidden">{{=loadedProject}}</div>
+
+<h2 style="width: 500px; float: left; margin-left: 50px;">
+    LISP Code
+</h2>
+
+<h2 style="width: 500px; float: right; margin-right: 50px;">
+    Output
+</h2>
+
+<div id="outputbox" style="overflow-y:scroll; overflow-x:scroll;">
+    <p id="output" class="whitetext">
+
+    </p>
+</div>
+
+<div id="container" style="position:relative; margin-left: 50px;">
+    <form action="#" enctype="multipart/form-data">
+        <textarea id="inputbox" type="text" class="left" wrap="off" style="overflow-y:scroll; overflow-x:scroll;"></textarea>
+    <div style="position:absolute; top:570px; ">
+    <button id="interpret" class="btn">Interpret</button>
+    <button id="clear" class="btn">Clear</button>
+    <button id="save" class="btn">Save</button>
+    </div>
+    </form>
+</div>
